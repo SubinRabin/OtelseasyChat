@@ -10,6 +10,8 @@ let connectedUsers = { }
 
 let communityChat = createChat({ isCommunity:true })
 
+const dbUrl = 'http://localhost:4000'
+
 module.exports = function(socket){
 					
 	// console.log('\x1bc'); //clears console
@@ -20,7 +22,7 @@ module.exports = function(socket){
 	let sendTypingFromUser;
 
 	//Verify Username
-	socket.on(VERIFY_USER, (nickname, callback)=>{
+	socket.on(VERIFY_USER, (nickname,MailId,password,callback)=>{
 		if(isUser(connectedUsers, nickname)){
 			callback({ isUser:true, user:null })
 		}else{

@@ -5,6 +5,7 @@ import LoginForm from './LoginForm'
 import ChatContainer from './chats/ChatContainer'
 
 const socketUrl = "http://localhost:3231"
+// const dbUrl = 'http://localhost:4000'
 export default class Layout extends Component {
 	
 	constructor(props) {
@@ -12,7 +13,9 @@ export default class Layout extends Component {
 	
 	  this.state = {
 	  	socket:null,
-	  	user:null
+	  	user:null,
+	  	MailId:null,
+	  	Password:null,
 	  };
 	}
 
