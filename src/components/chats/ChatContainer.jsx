@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import SideBar from '../sidebar/SideBar';
 import { COMMUNITY_CHAT, MESSAGE_SENT, MESSAGE_RECIEVED,
-	TYPING,PRIVATE_MESSAGE,USER_CONNECTED,USER_DISCONNECTED,NEW_CHAT_USER } from '../../Events'
+	TYPING,PRIVATE_MESSAGE,USER_CONNECTED,USER_DISCONNECTED,NEW_CHAT_USER,USER_LIST } from '../../Events'
 import ChatHeading from './ChatHeading'
 import Messages from '../messages/Messages'
 import MessageInput from '../messages/MessageInput'
@@ -41,6 +41,11 @@ export default class ChatContainer extends Component {
 		socket.on(USER_CONNECTED, (users) => {
 			this.setState({users:values(users)})
 		})
+
+		socket.on(USER_LIST, (users) => {
+			this.setState({users:values(users)})
+		})
+
 		socket.on(USER_DISCONNECTED, (users) => {
 			const removedUsers = differenceBy( this.state.users, values(users), 'id')
 			this.removeUsersFromChat(removedUsers)

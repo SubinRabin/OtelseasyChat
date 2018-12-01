@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { VERIFY_USER } from '../Events'
 import './login.css';
 // import Logo from '../Logo.png'
+
 export default class LoginForm extends Component {
 	constructor(props) {
 	  super(props);
 	
 	  this.state = {
-	  	nickname:"",
 	  	MailId:"",
 	  	Password:"",
 	  	error:""
@@ -17,7 +17,7 @@ export default class LoginForm extends Component {
 
 	setUser = ({user, isUser})=>{
 		if(isUser){
-			this.setError("User name taken")
+			this.setError("Invalid Credential")
 		}else{
 			this.setError("")
 			this.props.setUser(user)
@@ -26,14 +26,13 @@ export default class LoginForm extends Component {
 
 	handleSubmit = (e)=>{
 		e.preventDefault()
-		if (this.state.nickname!=="" && this.state.MailId!=="" && this.state.password!=="") {
+		if (this.state.MailId!=="" && this.state.Password!=="") {
 			const { socket } = this.props
-			const { nickname } = this.state
 			const { MailId } = this.state
-			const { password } = this.state
-			socket.emit(VERIFY_USER, nickname,MailId,password, this.setUser)
+			const { Password } = this.state
+			socket.emit(VERIFY_USER, MailId,Password, this.setUser)
 		} else {
-			this.setError("Email id & password is required !")
+			this.setError("Email id & Password is required !")
 		}
 		
 	}
@@ -47,7 +46,7 @@ export default class LoginForm extends Component {
 	}
 
 	render() {	
-		const { nickname,MailId,Password,error } = this.state
+		const { MailId,Password,error } = this.state
 		return (
 			<div className="login">
 				<form onSubmit={this.handleSubmit} className="login-form" >
@@ -58,14 +57,6 @@ export default class LoginForm extends Component {
 					<span className="login-form-avatar">
 						<img  alt=""/>
 					</span>
-					<input
-						ref={(input)=>{ this.textInput = input }} 
-						type="text"
-						id="nickname"
-						value={nickname}
-						onChange={this.handleChange}
-						placeholder={'User Name'}
-						/>
 					<input
 						ref={(input)=>{ this.textInput = input }} 
 						type="email"

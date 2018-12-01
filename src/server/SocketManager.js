@@ -1,8 +1,10 @@
 const io = require('./index.js').io
+const db = require("./database");
+var md5Hash = require("md5-hash")
 
 const { VERIFY_USER, USER_CONNECTED, USER_DISCONNECTED, 
 		LOGOUT, COMMUNITY_CHAT, MESSAGE_RECIEVED, MESSAGE_SENT,
-		TYPING,PRIVATE_MESSAGE,NEW_CHAT_USER  } = require('../Events')
+		TYPING,PRIVATE_MESSAGE,NEW_CHAT_USER,USER_LIST  } = require('../Events')
 
 const { createUser, createMessage, createChat } = require('../Factories')
 
@@ -10,24 +12,28 @@ let connectedUsers = { }
 
 let communityChat = createChat({ isCommunity:true })
 
-const dbUrl = 'http://localhost:4000'
 
 module.exports = function(socket){
 					
 	// console.log('\x1bc'); //clears console
 	console.log("Socket Id:" + socket.id);
-
 	let sendMessageToChatFromUser;
-
 	let sendTypingFromUser;
 
 	//Verify Username
-	socket.on(VERIFY_USER, (nickname,MailId,password,callback)=>{
-		if(isUser(connectedUsers, nickname)){
-			callback({ isUser:true, user:null })
-		}else{
-			callback({ isUser:false, user:createUser({name:nickname,socketId:socket.id})})
-		}
+	socket.on(VERIFY_USER, (MailId,Password,callback)=>{
+		loginQuery(MailId,Password, function(err,data){
+			if (data===null) {
+				callback({ isUser:true, user:null })
+	        } else {      
+				callback({ isUser:false, user:createUser({name:data[0].Name,socketId:socket.id,userId:data[0].userId})})
+	        }    
+		});
+		// if(isUser(connectedUsers, nickname)){
+		// 	callback({ isUser:true, user:null })
+		// }else{
+		// 	callback({ isUser:false, user:createUser({name:nickname,socketId:socket.id})})
+		// }
 	})
 
 	//User Connects with username
@@ -40,10 +46,20 @@ module.exports = function(socket){
 		sendTypingFromUser = sendTypingToChat(user.name)
 
 		io.emit(USER_CONNECTED, connectedUsers)
-		console.log(connectedUsers);
+		// console.log(connectedUsers);
 
 	})
 	
+	//Default user list
+
+	socket.on(USER_LIST,(user)=>{
+		userListQuery(function(err,data) {
+			if (data!==null) {
+				console.log(data)
+	        }   
+		})
+	})
+
 	//User disconnects
 	socket.on('disconnect', ()=>{
 		if("user" in socket){
@@ -155,4 +171,26 @@ function removeUser(userList, username){
 */
 function isUser(userList, username){
   	return username in userList
+}
+function loginQuery(MailId,Password,callback) {
+	var returnVal = null;
+	md5Password = md5Hash.default(Password)
+	var query = "SELECT userId,Name,MailId FROM chattblusers where MailId ='"+MailId+"' AND password ='"+md5Password+"' limit 1";
+	db.query(query, function (err, result) {
+		if (result.length===0) {
+			callback(err,null)
+		} else {
+			callback(err,result)
+		}
+  	});
+}
+function userListQuery(callback) {
+	var query = "SELECT userId,Name FROM chattblusers where userId !='1'";
+	db.query(query, function (err, result) {
+		if (result.length===0) {
+			callback(err,null)
+		} else {
+			callback(err,result)
+		}
+  	});
 }
